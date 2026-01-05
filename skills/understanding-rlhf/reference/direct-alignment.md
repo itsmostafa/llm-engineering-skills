@@ -64,7 +64,7 @@ Where Z(x) is a normalization constant that cancels when computing preference pr
 Substituting into the Bradley-Terry preference model:
 
 ```
-P(y_w > y_l | x) = sigmoid(β · (log π(y_w|x)/π_ref(y_w|x) - log π(y_l|x)/π_ref(y_l|x)))
+P(y_w > y_l | x) = sigmoid(β · ((log π(y_w|x) - log π_ref(y_w|x)) - (log π(y_l|x) - log π_ref(y_l|x))))
 ```
 
 ### Loss Function
@@ -72,7 +72,7 @@ P(y_w > y_l | x) = sigmoid(β · (log π(y_w|x)/π_ref(y_w|x) - log π(y_l|x)/π
 The DPO loss maximizes the log-likelihood of observed preferences:
 
 ```
-L_DPO = -E[log sigmoid(β · (log π(y_w|x)/π_ref(y_w|x) - log π(y_l|x)/π_ref(y_l|x)))]
+L_DPO = -E[log sigmoid(β · ((log π(y_w|x) - log π_ref(y_w|x)) - (log π(y_l|x) - log π_ref(y_l|x))))]
 ```
 
 Where y_w is the preferred (winning) response and y_l is the dispreferred (losing) response.
@@ -129,7 +129,7 @@ IPO addresses this by using a different loss formulation that doesn't rely on th
 IPO minimizes:
 
 ```
-L_IPO = (log π(y_w|x)/π_ref(y_w|x) - log π(y_l|x)/π_ref(y_l|x) - 1/(2β))²
+L_IPO = ((log π(y_w|x) - log π_ref(y_w|x)) - (log π(y_l|x) - log π_ref(y_l|x)) - 1/(2β))²
 ```
 
 This is a regression loss that targets a specific margin (1/2β) between preferred and dispreferred responses.
@@ -169,12 +169,12 @@ KTO is inspired by prospect theory from behavioral economics, specifically the i
 
 For desirable examples:
 ```
-L_desirable = -log sigmoid(β · (log π(y|x)/π_ref(y|x) - KL_ref))
+L_desirable = -log sigmoid(β · (log π(y|x) - log π_ref(y|x) - KL_ref))
 ```
 
 For undesirable examples:
 ```
-L_undesirable = -log sigmoid(-β · (log π(y|x)/π_ref(y|x) - KL_ref))
+L_undesirable = -log sigmoid(-β · (log π(y|x) - log π_ref(y|x) - KL_ref))
 ```
 
 Where KL_ref is the expected KL divergence, used to center the optimization.
