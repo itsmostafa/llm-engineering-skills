@@ -156,6 +156,9 @@ from torch.cuda.amp import autocast, GradScaler
 scaler = GradScaler()
 
 for batch in train_loader:
+    inputs, targets = batch
+    inputs, targets = inputs.to(device), targets.to(device)
+
     optimizer.zero_grad()
 
     with autocast():
@@ -170,9 +173,15 @@ for batch in train_loader:
 ### Gradient Accumulation
 
 ```python
+# Requires setup from Mixed Precision Training above:
+# scaler = GradScaler(), model, criterion, optimizer, device
+
 accumulation_steps = 4
 
 for i, batch in enumerate(train_loader):
+    inputs, targets = batch
+    inputs, targets = inputs.to(device), targets.to(device)
+
     with autocast():
         outputs = model(inputs)
         loss = criterion(outputs, targets) / accumulation_steps
