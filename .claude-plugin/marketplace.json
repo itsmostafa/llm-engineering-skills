@@ -1,0 +1,25 @@
+{
+  "name": "llm-engineering-skills",
+  "owner": {
+    "name": "itsmostafa",
+    "email": "mostafaxcodes@gmail.com"
+  },
+  "metadata": {
+    "description": "Claude skills for LLM engineering tasks including PyTorch, Transformers, LoRA fine-tuning, and MLX on Apple Silicon",
+    "version": "1.0.0"
+  },
+  "plugins": [
+    {
+      "name": "llm-engineering-skills",
+      "description": "Collection of LLM engineering skills for PyTorch, Transformers, LoRA, and MLX",
+      "source": "./",
+      "strict": false,
+      "skills": [
+        "./skills/using-lora",
+        "./skills/using-mlx",
+        "./skills/using-pytorch",
+        "./skills/using-transformers"
+      ]
+    }
+  ]
+}
