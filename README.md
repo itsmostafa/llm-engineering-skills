@@ -65,7 +65,7 @@ $skill-installer install https://github.com/itsmostafa/llm-engineering-skills/tr
 Once installed, AI agents will automatically use these skills when you work on relevant tasks. Here are some examples:
 
 **Fine-tune a 70B model on a single GPU**
-> "Help me QLoRA fine-tune Llama 3.1 70B on my custom dataset using a 48GB A6000"
+> "Help me QLoRA fine-tune Gemme 3 24B on my custom dataset using a 48GB A6000"
 
 The agent knows NF4 quantization, double quantization for memory savings, paged optimizers to handle memory spikes, and the exact `BitsAndBytesConfig` settings to make it work.
 
@@ -80,7 +80,7 @@ The agent understands orchestrator-worker patterns, human-in-the-loop checkpoint
 The agent knows the Bradley-Terry model, when to use DPO vs PPO, KL regularization to prevent reward hacking, and how to structure preference datasets.
 
 **Run models locally on Apple Silicon**
-> "Convert Mistral 7B to MLX format and fine-tune it on my M3 Max with LoRA"
+> "Convert Mistral 7B to MLX format and fine-tune it on my M4 Max with LoRA"
 
 The agent handles model conversion, 4-bit quantization for MLX, and memory-efficient LoRA training optimized for unified memory.
 
