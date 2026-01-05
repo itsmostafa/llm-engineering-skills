@@ -6,6 +6,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 This repository contains Claude Agent Skills for LLM engineering tasks. Skills are modular, filesystem-based capabilities that extend Claude's functionality with domain-specific expertise.
 
+## Repository Files
+
+- `REFERENCES.md` - External resources and documentation referenced across skills. **Update this file when creating new skills that reference external sources.**
+
 ## Skill Structure
 
 Each skill follows this structure:
