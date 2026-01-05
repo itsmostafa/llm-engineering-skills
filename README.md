@@ -1,5 +1,11 @@
 # LLM Engineering Skills
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Claude](https://img.shields.io/badge/Claude-D97757?logo=claude&logoColor=fff)](https://claude.ai/code)
+![GitHub Stars](https://img.shields.io/github/stars/itsmostafa/llm-engineering-skills)
+![Last Commit](https://img.shields.io/github/last-commit/itsmostafa/llm-engineering-skills)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/itsmostafa/llm-engineering-skills/pulls)
+
 ### Turn AI agents into capable LLM engineers.
 
 This repository is a curated collection of practical engineering skills designed to make AI agents like Claude Code and OpenAI Codex dramatically more effective when working on AI and machine learning projects. Instead of generic assistance, these skills give agents concrete knowledge, workflows, and patterns used by real LLM engineers.
