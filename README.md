@@ -1,16 +1,20 @@
 # LLM Engineering Skills
 
-A curated collection of Claude Code skills for machine learning engineers. These skills extend Claude's capabilities with deep expertise in PyTorch, Hugging Face Transformers, LoRA fine-tuning, and Apple Silicon optimization with MLX.
+A curated collection of Claude Code skills for machine learning engineers. These skills extend Claude's capabilities with expertise in building LLM agents, prompt engineering, fine-tuning with LoRA/QLoRA, and framework-specific knowledge for PyTorch, Transformers, and MLX.
 
 ## Skills Included
 
 | Skill | Description |
 |-------|-------------|
-| **pytorch** | Building and training neural networks with PyTorch. Training loops, data pipelines, torch.compile optimization, and distributed training. |
-| **transformers** | Loading and using pretrained models with Hugging Face Transformers. Pipeline API, Trainer fine-tuning, and multimodal tasks. |
-| **lora** | Parameter-efficient fine-tuning with Low-Rank Adaptation. Train models with ~0.1% of original parameters using QLoRA and adapter merging. |
+| **agents** | Patterns and architectures for building AI agents and workflows. Tool use, multi-step reasoning, and orchestration of LLM-driven tasks. |
+| **context-engineering** | Managing LLM context windows in AI agents. Long conversations, multi-step tasks, and maintaining coherence across extended interactions. |
+| **lora** | Parameter-efficient fine-tuning with Low-Rank Adaptation. Train models with ~0.1% of original parameters using adapter merging. |
 | **mlx** | Running and fine-tuning LLMs on Apple Silicon with MLX. Model conversion, quantization, LoRA fine-tuning, and local model serving. |
-| **rlhf** | Understanding Reinforcement Learning from Human Feedback for aligning language models. Reward modeling, policy optimization, and direct alignment algorithms like DPO. |
+| **prompt-engineering** | Crafting effective prompts for LLMs. Designing prompts, improving output quality, and structuring complex instructions. |
+| **pytorch** | Building and training neural networks with PyTorch. Training loops, data pipelines, torch.compile optimization, and distributed training. |
+| **qlora** | Memory-efficient fine-tuning with 4-bit quantization and LoRA adapters. Fine-tune large models (7B+) on consumer GPUs with limited VRAM. |
+| **rlhf** | Reinforcement Learning from Human Feedback for aligning language models. Reward modeling, policy optimization, and DPO. |
+| **transformers** | Loading and using pretrained models with Hugging Face Transformers. Pipeline API, Trainer fine-tuning, and multimodal tasks. |
 
 ## Getting Started
 
