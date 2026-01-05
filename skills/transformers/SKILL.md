@@ -1,5 +1,5 @@
 ---
-name: using-transformers
+name: transformers
 description: Loading and using pretrained models with Hugging Face Transformers. Use when working with pretrained models from the Hub, running inference with Pipeline API, fine-tuning models with Trainer, or handling text, vision, audio, and multimodal tasks.
 ---
 
