@@ -6,6 +6,7 @@ External resources and documentation referenced across skills.
 
 - [Training language models to follow instructions with human feedback](https://arxiv.org/abs/2203.02155) - InstructGPT paper, foundational work on RLHF
 - [Direct Preference Optimization: Your Language Model is Secretly a Reward Model](https://arxiv.org/abs/2305.18290) - DPO paper, direct alignment without reward models
+- [ReAct: Synergizing Reasoning and Acting in Language Models](https://arxiv.org/abs/2210.03629) - ReAct paper, combining reasoning traces with actions
 
 ## Books
 
@@ -14,6 +15,7 @@ External resources and documentation referenced across skills.
 ## Engineering Guides
 
 - [Effective Context Engineering for AI Agents](https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents) - Anthropic guide on managing LLM context windows
+- [Building Effective Agents](https://www.anthropic.com/engineering/building-effective-agents) - Anthropic guide on agent patterns and architectures
 - [Session Memory for Agents](https://cookbook.openai.com/examples/agents_sdk/session_memory) - OpenAI cookbook on context trimming and summarization patterns
 
 ## Official Documentation
@@ -23,6 +25,7 @@ External resources and documentation referenced across skills.
 - [PyTorch](https://pytorch.org/docs/stable/) - Deep learning framework
 - [MLX](https://ml-explore.github.io/mlx/) - Apple Silicon ML framework
 - [MLX-LM](https://github.com/ml-explore/mlx-examples/tree/main/llms/mlx_lm) - LLM utilities for MLX
+- [LangGraph](https://docs.langchain.com/oss/javascript/langgraph/workflows-agents) - LangChain framework for building agent workflows
 
 ### Hugging Face Ecosystem
 
