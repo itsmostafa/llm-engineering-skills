@@ -249,9 +249,11 @@ tokenizer.save_pretrained("./qlora-adapter")
 ### Inference with Quantized Model
 
 ```python
-from transformers import AutoModelForCausalLM, BitsAndBytesConfig
+from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
 from peft import PeftModel
 import torch
+
+model_name = "meta-llama/Llama-3.1-8B"
 
 # Load quantized base model
 bnb_config = BitsAndBytesConfig(
@@ -261,10 +263,11 @@ bnb_config = BitsAndBytesConfig(
 )
 
 base_model = AutoModelForCausalLM.from_pretrained(
-    "meta-llama/Llama-3.1-8B",
+    model_name,
     quantization_config=bnb_config,
     device_map="auto",
 )
+tokenizer = AutoTokenizer.from_pretrained(model_name)
 
 # Load adapter
 model = PeftModel.from_pretrained(base_model, "./qlora-adapter")
