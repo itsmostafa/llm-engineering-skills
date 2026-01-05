@@ -14,13 +14,10 @@ A curated collection of Claude Code skills for machine learning engineers. These
 
 ## Getting Started
 
-### Prerequisites
-
-- Claude Code CLI (version 1.0.33 or later)
-
-### Installation
-
 #### Claude Code
+
+Prerequisites
+- Claude Code CLI (version 1.0.33 or later)
 
 Add the plugin marketplace and install:
 
@@ -39,6 +36,9 @@ npx claude-plugins install @itsmostafa/llm-engineering-skills
 ```
 
 #### Codex
+
+Prerequisites
+- Codex CLI
 
 Install a specific skill using the skill installer:
 
