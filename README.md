@@ -6,20 +6,6 @@ This repository is a curated collection of practical engineering skills designed
 
 The goal is to enable AI agents to reason, plan, and execute AI engineering tasks with confidence and precision.
 
-## Skills Included
-
-| Skill | Description |
-|-------|-------------|
-| **agents** | Patterns and architectures for building AI agents and workflows. Tool use, multi-step reasoning, and orchestration of LLM-driven tasks. |
-| **context-engineering** | Managing LLM context windows in AI agents. Long conversations, multi-step tasks, and maintaining coherence across extended interactions. |
-| **lora** | Parameter-efficient fine-tuning with Low-Rank Adaptation. Train models with ~0.1% of original parameters using adapter merging. |
-| **mlx** | Running and fine-tuning LLMs on Apple Silicon with MLX. Model conversion, quantization, LoRA fine-tuning, and local model serving. |
-| **prompt-engineering** | Crafting effective prompts for LLMs. Designing prompts, improving output quality, and structuring complex instructions. |
-| **pytorch** | Building and training neural networks with PyTorch. Training loops, data pipelines, torch.compile optimization, and distributed training. |
-| **qlora** | Memory-efficient fine-tuning with 4-bit quantization and LoRA adapters. Fine-tune large models (7B+) on consumer GPUs with limited VRAM. |
-| **rlhf** | Reinforcement Learning from Human Feedback for aligning language models. Reward modeling, policy optimization, and DPO. |
-| **transformers** | Loading and using pretrained models with Hugging Face Transformers. Pipeline API, Trainer fine-tuning, and multimodal tasks. |
-
 ## Getting Started
 
 #### Claude Code
@@ -93,6 +79,20 @@ The agent implements hybrid context strategies—trimming old messages while mai
 > "My PyTorch training is slow. Help me profile it and add torch.compile with the right backend"
 
 The agent knows `torch.profiler`, when to use `inductor` vs `cudagraphs`, gradient checkpointing trade-offs, and how to identify bottlenecks in data loading.
+
+## Skills Included
+
+| Skill | Description |
+|-------|-------------|
+| **agents** | Patterns and architectures for building AI agents and workflows. Tool use, multi-step reasoning, and orchestration of LLM-driven tasks. |
+| **context-engineering** | Managing LLM context windows in AI agents. Long conversations, multi-step tasks, and maintaining coherence across extended interactions. |
+| **lora** | Parameter-efficient fine-tuning with Low-Rank Adaptation. Train models with ~0.1% of original parameters using adapter merging. |
+| **mlx** | Running and fine-tuning LLMs on Apple Silicon with MLX. Model conversion, quantization, LoRA fine-tuning, and local model serving. |
+| **prompt-engineering** | Crafting effective prompts for LLMs. Designing prompts, improving output quality, and structuring complex instructions. |
+| **pytorch** | Building and training neural networks with PyTorch. Training loops, data pipelines, torch.compile optimization, and distributed training. |
+| **qlora** | Memory-efficient fine-tuning with 4-bit quantization and LoRA adapters. Fine-tune large models (7B+) on consumer GPUs with limited VRAM. |
+| **rlhf** | Reinforcement Learning from Human Feedback for aligning language models. Reward modeling, policy optimization, and DPO. |
+| **transformers** | Loading and using pretrained models with Hugging Face Transformers. Pipeline API, Trainer fine-tuning, and multimodal tasks. |
 
 ## Contributing
 
