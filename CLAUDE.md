@@ -9,6 +9,7 @@ This repository contains Claude Agent Skills for LLM engineering tasks. Skills a
 ## Repository Files
 
 - `REFERENCES.md` - External resources and documentation referenced across skills. **Update this file when creating new skills that reference external sources.**
+- `.claude-plugin/marketplace.json` - Plugin manifest listing all available skills. **Update this file whenever a new skill is added.**
 
 ## Skill Structure
 
