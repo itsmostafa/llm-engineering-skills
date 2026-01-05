@@ -15,9 +15,13 @@
       "source": "./",
       "strict": false,
       "skills": [
+        "./skills/agents",
+        "./skills/context-engineering",
         "./skills/lora",
         "./skills/mlx",
+        "./skills/prompt-engineering",
         "./skills/pytorch",
+        "./skills/qlora",
         "./skills/rlhf",
         "./skills/transformers"
       ]
