@@ -39,3 +39,8 @@ External resources and documentation referenced across skills.
 ## Libraries
 
 - [bitsandbytes](https://github.com/bitsandbytes-foundation/bitsandbytes) - 8-bit and 4-bit quantization for PyTorch
+
+## Prompt Engineering
+
+- [Claude Prompt Engineering Guide](https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering/overview) - Anthropic's official prompting documentation
+- [GPT-5 Prompting Guide](https://cookbook.openai.com/examples/gpt-5/gpt-5-2_prompting_guide) - OpenAI cookbook on advanced prompting techniques

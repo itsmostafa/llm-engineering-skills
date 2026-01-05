@@ -17,6 +17,7 @@
       "skills": [
         "./skills/lora",
         "./skills/mlx",
+        "./skills/prompt-engineering",
         "./skills/pytorch",
         "./skills/rlhf",
         "./skills/transformers"
