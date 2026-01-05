@@ -1,5 +1,5 @@
 ---
-name: using-pytorch
+name: pytorch
 description: Building and training neural networks with PyTorch. Use when implementing deep learning models, training loops, data pipelines, model optimization with torch.compile, distributed training, or deploying PyTorch models.
 ---
 

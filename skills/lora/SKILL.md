@@ -1,5 +1,5 @@
 ---
-name: using-lora
+name: lora
 description: Parameter-efficient fine-tuning with Low-Rank Adaptation (LoRA). Use when fine-tuning large language models with limited GPU memory, creating task-specific adapters, or when you need to train multiple specialized models from a single base.
 ---
 

@@ -29,7 +29,7 @@ description: Brief description of what this Skill does and when to use it. Max 1
 [Markdown instructions - keep under 500 lines]
 ```
 
-**Naming**: Use gerund form (e.g., `using-pytorch`, `using-transformers`, `building-agents`, `testing-llms`)
+**Naming**: Use simple, descriptive names (e.g., `pytorch`, `transformers`, `lora`, `mlx`, `rlhf`)
 
 **Description**: Write in third person. Include both what the skill does AND when Claude should use it.
 

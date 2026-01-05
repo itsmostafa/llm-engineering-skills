@@ -1,5 +1,5 @@
 ---
-name: understanding-rlhf
+name: rlhf
 description: Understanding Reinforcement Learning from Human Feedback (RLHF) for aligning language models. Use when learning about preference data, reward modeling, policy optimization, or direct alignment algorithms like DPO.
 ---
 
