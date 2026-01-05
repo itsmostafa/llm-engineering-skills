@@ -1,6 +1,10 @@
 # LLM Engineering Skills
 
-A curated collection of Claude Code skills for machine learning engineers. These skills extend Claude's capabilities with expertise in building LLM agents, prompt engineering, fine-tuning with LoRA/QLoRA, and framework-specific knowledge for PyTorch, Transformers, and MLX.
+Turn AI agents into capable LLM engineers.
+
+This repository is a curated collection of practical engineering skills designed to make AI agents like Claude Code and OpenAI Codex dramatically more effective when working on AI and machine learning projects. Instead of generic assistance, these skills give agents concrete knowledge, workflows, and patterns used by real LLM engineers.
+
+The goal is to enable AI agents to reason, plan, and execute AI engineering tasks with confidence and precision.
 
 ## Skills Included
 
@@ -58,12 +62,45 @@ $skill-installer install https://github.com/itsmostafa/llm-engineering-skills/tr
 
 ### Usage
 
-Once installed, Claude will automatically use these skills when you work on relevant tasks:
+Once installed, AI agents will automatically use these skills when you work on relevant tasks. Here are some examples:
 
-- Ask Claude to help you build a PyTorch training loop
-- Request help fine-tuning a model with LoRA
-- Get assistance converting models to MLX format
-- Work with Hugging Face pipelines and the Trainer API
+**Fine-tune a 70B model on a single GPU**
+> "Help me QLoRA fine-tune Llama 3.1 70B on my custom dataset using a 48GB A6000"
+
+The agent knows NF4 quantization, double quantization for memory savings, paged optimizers to handle memory spikes, and the exact `BitsAndBytesConfig` settings to make it work.
+
+**Build an AI agent with tool use**
+> "Create a ReAct agent that can search the web, read files, and execute code to answer research questions"
+
+The agent understands orchestrator-worker patterns, human-in-the-loop checkpoints, and how to design tools that return self-contained, LLM-friendly outputs.
+
+**Align a model with human preferences**
+> "Implement DPO training to align my instruction-tuned model using preference data"
+
+The agent knows the Bradley-Terry model, when to use DPO vs PPO, KL regularization to prevent reward hacking, and how to structure preference datasets.
+
+**Run models locally on Apple Silicon**
+> "Convert Mistral 7B to MLX format and fine-tune it on my M3 Max with LoRA"
+
+The agent handles model conversion, 4-bit quantization for MLX, and memory-efficient LoRA training optimized for unified memory.
+
+**Manage context in long-running agents**
+> "My agent loses track of earlier decisions after 50+ turns. How do I fix this?"
+
+The agent implements hybrid context strategies—trimming old messages while maintaining structured summaries—and designs tools for just-in-time context loading.
+
+**Optimize training performance**
+> "My PyTorch training is slow. Help me profile it and add torch.compile with the right backend"
+
+The agent knows `torch.profiler`, when to use `inductor` vs `cudagraphs`, gradient checkpointing trade-offs, and how to identify bottlenecks in data loading.
+
+## Contributing
+
+Contributions are welcome.
+
+If you have practical LLM engineering knowledge, workflows, or patterns that would help AI agents perform better on real projects, feel free to open a pull request.
+
+Please update the `REFERENCES.md` file to include any external references you've used.
 
 ## License
 
