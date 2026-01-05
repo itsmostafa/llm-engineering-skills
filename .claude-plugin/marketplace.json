@@ -15,10 +15,11 @@
       "source": "./",
       "strict": false,
       "skills": [
-        "./skills/using-lora",
-        "./skills/using-mlx",
-        "./skills/using-pytorch",
-        "./skills/using-transformers"
+        "./skills/lora",
+        "./skills/mlx",
+        "./skills/pytorch",
+        "./skills/rlhf",
+        "./skills/transformers"
       ]
     }
   ]
