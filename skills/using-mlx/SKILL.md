@@ -156,7 +156,7 @@ Convert Hugging Face models to MLX format:
 ### CLI Conversion
 
 ```bash
-# Convert without quantization
+# Convert with 4-bit quantization
 mlx_lm.convert --hf-path meta-llama/Llama-3.2-3B-Instruct \
     -q  # Quantize to 4-bit
 
