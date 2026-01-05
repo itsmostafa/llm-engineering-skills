@@ -1,6 +1,6 @@
 # LLM Engineering Skills
 
-Turn AI agents into capable LLM engineers.
+### Turn AI agents into capable LLM engineers.
 
 This repository is a curated collection of practical engineering skills designed to make AI agents like Claude Code and OpenAI Codex dramatically more effective when working on AI and machine learning projects. Instead of generic assistance, these skills give agents concrete knowledge, workflows, and patterns used by real LLM engineers.
 
