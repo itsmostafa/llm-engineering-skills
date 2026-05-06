@@ -6,6 +6,8 @@
 - [rsLoRA (Rank-Stabilized LoRA)](#rslora-rank-stabilized-lora)
 - [Multiple Adapters](#multiple-adapters)
 - [Adapter Composition](#adapter-composition)
+- [Trainable Tokens](#trainable-tokens)
+- [MoE Parameter Targeting](#moe-parameter-targeting)
 - [Debugging and Troubleshooting](#debugging-and-troubleshooting)
 - [Memory Optimization](#memory-optimization)
 
@@ -87,6 +89,23 @@ with model.disable_adapter():
     base_output = model.generate(**inputs)
 ```
 
+### Mixed Adapters in One Inference Batch
+
+Use `adapter_names` to select an adapter per sample at inference time.
+
+```python
+inputs = tokenizer(
+    ["Translate this to French", "Write a Python function", "Summarize this"],
+    return_tensors="pt",
+    padding=True,
+).to(model.device)
+
+adapter_names = ["translation", "coding", "__base__"]
+outputs = model.generate(**inputs, adapter_names=adapter_names, max_new_tokens=64)
+```
+
+This is inference-only and does not work after adapters are merged into the base model.
+
 ### Deleting Adapters
 
 ```python
@@ -128,6 +147,65 @@ model.add_weighted_adapter(
     combination_type="cat",
 )
 ```
+
+### Arrow Routing
+
+PEFT also supports Arrow-style adapter composition, where a lightweight router combines task-specific LoRA adapters token by token.
+
+```python
+from peft import ArrowConfig, create_arrow_model
+
+arrow_config = ArrowConfig(top_k=3, router_temperature=1.0, rng_seed=42)
+model = create_arrow_model(
+    base_model=base_model,
+    task_adapter_paths=["./adapter-code", "./adapter-math", "./adapter-writing"],
+    arrow_config=arrow_config,
+)
+```
+
+Use this when you want to reuse several existing adapters without manually choosing a single active adapter per request.
+
+## Trainable Tokens
+
+When adding a small number of special tokens, train just those embedding rows instead of the full embedding matrix.
+
+```python
+special_tokens = ["<|start_think|>", "<|stop_think|>"]
+tokenizer.add_special_tokens({"additional_special_tokens": special_tokens})
+model.resize_token_embeddings(len(tokenizer))
+
+token_ids = tokenizer.convert_tokens_to_ids(special_tokens)
+config = LoraConfig(
+    r=16,
+    target_modules=["q_proj", "v_proj"],
+    trainable_token_indices={"embed_tokens": token_ids},
+    task_type=TaskType.CAUSAL_LM,
+)
+```
+
+This keeps adapter checkpoints small and avoids overwriting unrelated embedding rows.
+
+## MoE Parameter Targeting
+
+Some mixture-of-experts models store expert weights directly as `nn.Parameter` tensors. Use `target_parameters` for those weights.
+
+```python
+config = LoraConfig(
+    r=16,
+    target_modules=["q_proj", "v_proj"],
+    target_parameters=[
+        "feed_forward.experts.gate_up_proj",
+        "feed_forward.experts.down_proj",
+    ],
+    rank_pattern={
+        "feed_forward.experts.gate_up_proj": 8,
+        "feed_forward.experts.down_proj": 8,
+    },
+    task_type=TaskType.CAUSAL_LM,
+)
+```
+
+Parameter-targeted LoRA can be slower at inference; merge the adapter for deployment when possible.
 
 ## Debugging and Troubleshooting
 

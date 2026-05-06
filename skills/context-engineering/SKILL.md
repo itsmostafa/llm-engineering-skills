@@ -119,6 +119,19 @@ class HybridContextManager:
         ]
 ```
 
+### 4. Session Memory
+
+Persist reusable facts, preferences, and task state outside the context window. Load only the relevant slice for the current turn.
+
+| Aspect | Details |
+|--------|---------|
+| **Mechanism** | External store keyed by user, session, task, or resource |
+| **Pros** | Recovers long-range context without carrying all history |
+| **Cons** | Requires retrieval, freshness, and deletion policies |
+| **Best for** | Agents, project work, personalization, long-running workflows |
+
+Separate durable memory from ephemeral scratchpads. Durable memory should contain stable facts and explicit decisions, not every intermediate thought.
+
 ## System Prompt Design
 
 ### Principles for Context-Efficient Prompts
@@ -367,7 +380,11 @@ def estimate_tokens_accurate(messages: list, model: str) -> int:
 
 10. **Measure and iterate**: Context engineering is empirical—test what information actually improves outcomes.
 
+11. **Separate memory classes**: Keep instructions, recent messages, durable memory, retrieved documents, and tool results in distinct sections so conflicts are easier to detect.
+
 ## References
 
 - [reference/evaluation-strategies.md](reference/evaluation-strategies.md) - Testing context management effectiveness
 - [reference/summarization-patterns.md](reference/summarization-patterns.md) - Detailed summarization implementations
+- [Effective Context Engineering for AI Agents](https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents)
+- [OpenAI Session Memory for Agents](https://cookbook.openai.com/examples/agents_sdk/session_memory)

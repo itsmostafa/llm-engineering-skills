@@ -7,7 +7,9 @@ This document covers reinforcement learning algorithms used to optimize language
 - [The RLHF Objective](#the-rlhf-objective)
 - [Policy Gradient Foundations](#policy-gradient-foundations)
 - [REINFORCE](#reinforce)
+- [RLOO](#rloo)
 - [PPO for RLHF](#ppo-for-rlhf)
+- [GRPO](#grpo)
 - [KL Regularization](#kl-regularization)
 - [Practical Considerations](#practical-considerations)
 - [Over-Optimization](#over-optimization)
@@ -111,11 +113,26 @@ REINFORCE is suitable when:
 - Computational resources are limited
 - The reward signal is relatively simple
 
+## RLOO
+
+REINFORCE Leave-One-Out (RLOO) samples multiple responses for each prompt and subtracts the mean reward of the other responses as the baseline:
+
+```
+A_i = R(y_i) - mean(R(y_j) for j != i)
+```
+
+This reduces variance without training a value model.
+
+**Use RLOO when**:
+- You can sample several completions per prompt
+- You want simpler online RL than PPO
+- A learned value head adds too much memory or engineering overhead
+
 ## PPO for RLHF
 
 ### Overview
 
-Proximal Policy Optimization (PPO) is the standard algorithm for RLHF. It improves on REINFORCE with:
+Proximal Policy Optimization (PPO) is the classic algorithm for reward-model RLHF. It improves on REINFORCE with:
 
 - Clipped surrogate objective for stable updates
 - Value function for variance reduction
@@ -193,6 +210,31 @@ Key hyperparameters for PPO in RLHF:
 | Value loss coef | 0.5 - 1.0 | Weight of value loss |
 | Entropy bonus | 0.0 - 0.01 | Encourages exploration |
 | Epochs per batch | 1 - 4 | Sample efficiency |
+
+## GRPO
+
+Group Relative Policy Optimization (GRPO) uses grouped rollouts for each prompt and computes relative advantages within the group. It is especially useful for verifiable rewards.
+
+### Training Loop
+
+For each iteration:
+
+1. Sample `G` completions for each prompt
+2. Score each completion with reward functions or reward models
+3. Normalize rewards within the prompt group
+4. Apply a policy gradient update with KL regularization to a reference model
+
+### Advantages
+
+- No separate value model
+- Natural fit for math, code, tool-use, and format-constrained tasks
+- Efficient when rewards can be computed automatically
+
+### Risks
+
+- Group normalization can hide prompt difficulty differences
+- Reward functions can induce brittle formatting hacks
+- Longer completions may be advantaged unless rewards handle length
 
 ## KL Regularization
 

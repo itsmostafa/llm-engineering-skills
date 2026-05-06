@@ -330,7 +330,7 @@ import torch
 model_name = "meta-llama/Llama-3.2-1B"
 model = AutoModelForCausalLM.from_pretrained(
     model_name,
-    torch_dtype=torch.bfloat16,
+    dtype=torch.bfloat16,
     device_map="auto",
 )
 tokenizer = AutoTokenizer.from_pretrained(model_name)
@@ -474,7 +474,8 @@ from trl import SFTTrainer, SFTConfig
 
 sft_config = SFTConfig(
     output_dir="./sft-model",
-    max_seq_length=1024,
+    max_length=1024,
+    dataset_text_field="text",
     per_device_train_batch_size=4,
     gradient_accumulation_steps=4,
     num_train_epochs=1,
@@ -487,8 +488,7 @@ trainer = SFTTrainer(
     model=model,
     args=sft_config,
     train_dataset=dataset,
-    tokenizer=tokenizer,
-    dataset_text_field="text",
+    processing_class=tokenizer,
     peft_config=lora_config,  # Optional: apply LoRA
 )
 

@@ -157,17 +157,17 @@ Convert Hugging Face models to MLX format:
 
 ```bash
 # Convert with 4-bit quantization
-mlx_lm.convert --hf-path meta-llama/Llama-3.2-3B-Instruct \
+mlx_lm.convert --model meta-llama/Llama-3.2-3B-Instruct \
     -q  # Quantize to 4-bit
 
 # With specific quantization
-mlx_lm.convert --hf-path mistralai/Mistral-7B-Instruct-v0.3 \
+mlx_lm.convert --model mistralai/Mistral-7B-Instruct-v0.3 \
     -q \
     --q-bits 8 \
     --q-group-size 64
 
 # Upload to Hugging Face Hub
-mlx_lm.convert --hf-path meta-llama/Llama-3.2-1B-Instruct \
+mlx_lm.convert --model meta-llama/Llama-3.2-1B-Instruct \
     -q \
     --upload-repo your-username/Llama-3.2-1B-Instruct-4bit-mlx
 ```
@@ -177,10 +177,11 @@ mlx_lm.convert --hf-path meta-llama/Llama-3.2-1B-Instruct \
 ```python
 from mlx_lm import convert
 
+repo = "meta-llama/Llama-3.2-3B-Instruct"
 convert(
-    hf_path="meta-llama/Llama-3.2-3B-Instruct",
-    mlx_path="./llama-3.2-3b-mlx",
+    repo,
     quantize=True,
+    mlx_path="./llama-3.2-3b-mlx",
     q_bits=4,
     q_group_size=64,
 )
@@ -210,10 +211,10 @@ MLX supports multiple quantization methods for different use cases:
 
 ```bash
 # 4-bit quantization during conversion
-mlx_lm.convert --hf-path mistralai/Mistral-7B-v0.3 -q
+mlx_lm.convert --model mistralai/Mistral-7B-v0.3 -q
 
 # 8-bit for higher quality
-mlx_lm.convert --hf-path mistralai/Mistral-7B-v0.3 -q --q-bits 8
+mlx_lm.convert --model mistralai/Mistral-7B-v0.3 -q --q-bits 8
 ```
 
 For detailed coverage of each method, see `reference/quantization.md`.
@@ -225,16 +226,24 @@ MLX supports LoRA and QLoRA fine-tuning for efficient adaptation on Apple Silico
 ### Quick Start
 
 ```bash
+pip install "mlx-lm[train]"
+
 # Prepare training data (JSONL format)
-# {"text": "Your training text here"}
-# or
-# {"messages": [{"role": "user", "content": "..."}, {"role": "assistant", "content": "..."}]}
+# ./data/train.jsonl is required for --train
+# ./data/valid.jsonl is optional
+# Supported rows include {"text": "..."} and chat {"messages": [...]}
 
 # Fine-tune with LoRA
 mlx_lm.lora --model mlx-community/Llama-3.2-3B-Instruct-4bit \
     --train \
     --data ./data \
     --iters 1000
+
+# Completion-only loss for chat/completion datasets
+mlx_lm.lora --model mlx-community/Llama-3.2-3B-Instruct-4bit \
+    --train \
+    --data ./data \
+    --mask-prompt
 
 # Generate with adapter
 mlx_lm.generate --model mlx-community/Llama-3.2-3B-Instruct-4bit \
@@ -257,6 +266,8 @@ mlx_lm.fuse --model mlx-community/Llama-3.2-3B-Instruct-4bit \
 ```
 
 For detailed LoRA configuration and training patterns, see `reference/fine-tuning.md`.
+
+MLX-LM also supports `--fine-tune-type dora` and `--fine-tune-type full` when the task needs more capacity than standard LoRA.
 
 ## Serving Models
 
@@ -303,18 +314,24 @@ print(response.choices[0].message.content)
 
 5. **Cache prompt prefixes**: Use `mlx_lm.cache_prompt` for repeated prompts with varying suffixes
 
-6. **Batch similar requests**: `batch_generate` is more efficient than sequential generation
+6. **Limit KV cache for long generations**: Use `--max-kv-size` to cap memory at the cost of long-range quality
 
-7. **Start with 4-bit quantization**: Good quality/size tradeoff; upgrade to 8-bit if quality issues
+7. **Batch similar requests**: `batch_generate` is more efficient than sequential generation
 
-8. **Fuse adapters for deployment**: After fine-tuning, fuse adapters for faster inference without loading separately
+8. **Start with 4-bit quantization**: Good quality/size tradeoff; upgrade to 8-bit if quality issues
 
-9. **Monitor memory with Activity Monitor**: Watch memory pressure to avoid swap thrashing
+9. **Fuse adapters for deployment**: After fine-tuning, fuse adapters for faster inference without loading separately
 
-10. **Use chat templates**: Always apply `tokenizer.apply_chat_template()` for instruction-tuned models
+10. **Monitor memory with Activity Monitor**: Watch memory pressure to avoid swap thrashing
+
+11. **Use chat templates**: Always apply `tokenizer.apply_chat_template()` for instruction-tuned models
 
 ## References
 
 See `reference/` for detailed documentation:
 - `quantization.md` - Detailed quantization methods and when to use each
 - `fine-tuning.md` - Complete LoRA/QLoRA training guide with data formats and configuration
+
+External documentation:
+- [MLX-LM GitHub](https://github.com/ml-explore/mlx-lm)
+- [MLX-LM LoRA guide](https://github.com/ml-explore/mlx-lm/blob/main/mlx_lm/LORA.md)

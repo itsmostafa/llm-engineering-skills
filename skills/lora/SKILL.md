@@ -17,6 +17,7 @@ LoRA (Low-Rank Adaptation) enables efficient fine-tuning by freezing pretrained 
 - [Saving and Loading](#saving-and-loading)
 - [Merging Adapters](#merging-adapters)
 - [Best Practices](#best-practices)
+- [References](#references)
 
 ## Core Concepts
 
@@ -65,7 +66,7 @@ import torch
 model_name = "meta-llama/Llama-3.2-1B"
 model = AutoModelForCausalLM.from_pretrained(
     model_name,
-    torch_dtype=torch.bfloat16,
+    dtype=torch.bfloat16,
     device_map="auto",
 )
 tokenizer = AutoTokenizer.from_pretrained(model_name)
@@ -110,6 +111,10 @@ config = LoraConfig(
     # Advanced
     modules_to_save=None,          # Additional modules to train (e.g., ["lm_head"])
     layers_to_transform=None,      # Specific layer indices to adapt
+    rank_pattern=None,             # Per-module rank overrides
+    alpha_pattern=None,            # Per-module alpha overrides
+    trainable_token_indices=None,  # Train only selected new token embeddings
+    target_parameters=None,        # Target nn.Parameter weights in some MoE layers
     use_rslora=False,              # Rank-stabilized LoRA scaling
     use_dora=False,                # Weight-Decomposed LoRA
 )
@@ -132,7 +137,12 @@ target_modules = ["query_key_value", "dense", "dense_h_to_4h", "dense_4h_to_h"]
 
 # Phi
 target_modules = ["q_proj", "k_proj", "v_proj", "dense", "fc1", "fc2"]
+
+# MoE expert parameters stored as nn.Parameter tensors
+target_parameters = ["feed_forward.experts.gate_up_proj", "feed_forward.experts.down_proj"]
 ```
+
+For MoE models where expert weights are not `nn.Linear` modules, use `target_parameters` rather than `target_modules`. Merge adapters before latency-sensitive inference because materializing expert LoRA updates can add overhead.
 
 ### Finding Target Modules
 
@@ -264,7 +274,8 @@ from trl import SFTTrainer, SFTConfig
 
 sft_config = SFTConfig(
     output_dir="./sft-lora",
-    max_seq_length=1024,
+    max_length=1024,
+    dataset_text_field="text",
     per_device_train_batch_size=4,
     gradient_accumulation_steps=4,
     num_train_epochs=1,
@@ -278,9 +289,8 @@ trainer = SFTTrainer(
     model=model,
     args=sft_config,
     train_dataset=dataset,
-    tokenizer=tokenizer,
+    processing_class=tokenizer,
     peft_config=lora_config,      # Pass config directly, SFTTrainer applies it
-    dataset_text_field="text",
 )
 
 trainer.train()
@@ -332,7 +342,7 @@ from transformers import AutoModelForCausalLM
 # Load base model
 base_model = AutoModelForCausalLM.from_pretrained(
     "meta-llama/Llama-3.2-1B",
-    torch_dtype=torch.bfloat16,
+    dtype=torch.bfloat16,
     device_map="auto",
 )
 
@@ -362,6 +372,16 @@ with model.disable_adapter():
     output = model.generate(**inputs)
 ```
 
+### Per-Sample Adapter Selection
+
+For inference batches that mix tasks or languages, pass `adapter_names` aligned with each sample. Use `"__base__"` for rows that should run the base model without an adapter.
+
+```python
+inputs = tokenizer(["Hello", "Bonjour", "Hallo"], return_tensors="pt", padding=True).to(model.device)
+adapter_names = ["__base__", "french", "german"]
+outputs = model.generate(**inputs, adapter_names=adapter_names, max_new_tokens=32)
+```
+
 ## Merging Adapters
 
 Merge LoRA weights into the base model for deployment without adapter overhead.
@@ -372,7 +392,7 @@ from peft import PeftModel
 # Load base model
 base_model = AutoModelForCausalLM.from_pretrained(
     "meta-llama/Llama-3.2-1B",
-    torch_dtype=torch.bfloat16,
+    dtype=torch.bfloat16,
     device_map="cpu",  # Merge on CPU to avoid memory issues
 )
 
@@ -421,7 +441,14 @@ merged_model.push_to_hub("username/my-merged-model")
     modules_to_save=["classifier", "score"]
     ```
 
+11. **Train new tokens selectively**: After adding special tokens, prefer `trainable_token_indices` over training the whole embedding matrix when only a few tokens need adaptation.
+
+12. **Merge adapters for high-throughput serving**: `merge_and_unload()` removes PEFT runtime overhead, especially for MoE parameter-targeted adapters.
+
 ## References
 
 See `reference/` for detailed documentation:
 - `advanced-techniques.md` - DoRA, rsLoRA, adapter composition, and debugging
+
+External documentation:
+- [PEFT LoRA developer guide](https://huggingface.co/docs/peft/developer_guides/lora)

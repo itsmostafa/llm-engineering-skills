@@ -75,6 +75,17 @@ Use reinforcement learning to optimize the SFT model against the reward model, w
 
 Direct alignment algorithms (DPO, IPO, KTO) skip the reward model entirely, optimizing directly from preference data. This simplifies the pipeline but trades off some flexibility.
 
+### Modern Post-Training Variants
+
+Current post-training stacks often mix these stages rather than using a single linear pipeline:
+
+| Method | Data Signal | Best Fit |
+|--------|-------------|----------|
+| SFT | Demonstrations | Format, style, instruction following |
+| DPO/IPO/KTO/ORPO | Offline preferences or binary feedback | Simpler alignment without online rollouts |
+| PPO/RLOO | Reward model scores on sampled responses | Reward-model RL with explicit KL control |
+| GRPO | Grouped completions scored by reward functions/models | Reasoning and verifiable-task optimization |
+
 ## Preference Data
 
 Preference data encodes human judgment about model outputs. The most common format is pairwise comparisons.
@@ -193,7 +204,7 @@ Where:
 
 ### PPO (Proximal Policy Optimization)
 
-PPO is the most common algorithm for RLHF:
+PPO is the classic reward-model RLHF algorithm:
 
 1. Sample responses from the current policy
 2. Score responses with the reward model
@@ -227,6 +238,20 @@ PPO adds complexity but improves stability:
 - Better sample efficiency
 
 See `reference/policy-optimization.md` for algorithm details.
+
+### GRPO (Group Relative Policy Optimization)
+
+GRPO samples multiple completions for each prompt, scores them with reward functions or reward models, and normalizes advantages within the group. It removes the separate value model used by PPO, which can reduce memory and implementation complexity for LLM post-training.
+
+**Use GRPO when**:
+- Rewards can be computed automatically, such as math correctness, unit tests, format checks, or model-graded rubrics
+- You want online learning from the model's own sampled completions
+- Memory pressure makes PPO's value model unattractive
+
+**Watch for**:
+- Reward scaling choices, which can bias learning toward easier or shorter prompts
+- Completion length bias
+- Reward functions that are brittle or easy to exploit
 
 ## Direct Alignment Algorithms
 
@@ -316,10 +341,11 @@ The preference data comes from a specific distribution of prompts and responses.
 2. **Invest in preference data quality**: Garbage in, garbage out—clear guidelines and trained annotators matter
 3. **Use KL regularization**: Don't optimize reward too aggressively; the reward model is an imperfect proxy
 4. **Monitor for reward hacking**: Track human evaluations alongside reward model scores
-5. **Consider direct alignment first**: DPO is simpler and often performs comparably to PPO
+5. **Consider direct alignment first**: DPO/ORPO-style methods are simpler than online RL when offline preference data is enough
 6. **Iterate on reward model**: Improve the reward model as you discover its weaknesses
 7. **Diverse prompts**: Ensure preference data covers the distribution you care about
 8. **Regularize appropriately**: Higher β for safety-critical applications; lower β for capability-focused training
+9. **Use GRPO for verifiable reasoning tasks**: Prefer reward functions with objective checks before model-graded rubrics
 
 ## References
 
@@ -334,3 +360,5 @@ The preference data comes from a specific distribution of prompts and responses.
 - [RLHF Book by Nathan Lambert](https://rlhfbook.com/) - Comprehensive textbook on RLHF
 - [Training language models to follow instructions with human feedback](https://arxiv.org/abs/2203.02155) - InstructGPT paper
 - [Direct Preference Optimization](https://arxiv.org/abs/2305.18290) - DPO paper
+- [TRL documentation](https://huggingface.co/docs/trl/) - Current SFT, DPO, GRPO, reward modeling, RLOO, and PPO trainers
+- [DeepSeekMath](https://arxiv.org/abs/2402.03300) - Introduces GRPO

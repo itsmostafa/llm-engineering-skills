@@ -32,13 +32,13 @@ Simple round-to-nearest quantization during model conversion.
 
 ```bash
 # 4-bit quantization (default)
-mlx_lm.convert --hf-path meta-llama/Llama-3.2-3B-Instruct -q
+mlx_lm.convert --model meta-llama/Llama-3.2-3B-Instruct -q
 
 # 8-bit quantization
-mlx_lm.convert --hf-path meta-llama/Llama-3.2-3B-Instruct -q --q-bits 8
+mlx_lm.convert --model meta-llama/Llama-3.2-3B-Instruct -q --q-bits 8
 
 # Custom group size (smaller = better quality, larger model)
-mlx_lm.convert --hf-path meta-llama/Llama-3.2-3B-Instruct \
+mlx_lm.convert --model meta-llama/Llama-3.2-3B-Instruct \
     -q --q-bits 4 --q-group-size 32
 ```
 

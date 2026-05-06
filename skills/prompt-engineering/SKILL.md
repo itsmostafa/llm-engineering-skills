@@ -12,7 +12,7 @@ Prompt engineering is the practice of designing inputs that guide LLMs to produc
 - [Core Principles](#core-principles)
 - [Be Clear and Direct](#be-clear-and-direct)
 - [Use Examples (Multishot)](#use-examples-multishot)
-- [Chain of Thought](#chain-of-thought)
+- [Reasoning Guidance](#reasoning-guidance)
 - [XML Tags](#xml-tags)
 - [Role Prompting](#role-prompting)
 - [Long Context](#long-context)
@@ -101,9 +101,9 @@ Now categorize: {{FEEDBACK}}
 - Vary examples to prevent unintended pattern matching
 - Wrap in `<example>` tags for clarity
 
-## Chain of Thought
+## Reasoning Guidance
 
-Encourage step-by-step reasoning for complex tasks. This improves accuracy in math, logic, analysis, and multi-factor decisions.
+For complex tasks, guide the model to reason before answering, but ask for concise conclusions or verifiable work rather than unrestricted hidden chain-of-thought.
 
 ### Basic
 
@@ -125,20 +125,25 @@ Think before answering:
 
 ### Structured (Recommended)
 
-Separate reasoning from output with tags:
+Separate private analysis instructions from the required answer format:
 
 ```
 Analyze this contract for legal risks.
 
-In <thinking> tags, work through:
+Before answering, check:
 - Indemnification implications
 - Liability exposure
 - IP ownership concerns
 
-Then provide your recommendation in <answer> tags.
+Then provide:
+<answer>
+- Top risks
+- Recommended edits
+- Open questions
+</answer>
 ```
 
-This makes reasoning visible for debugging and the answer extractable for post-processing.
+When you need auditability, ask for brief supporting rationale, calculations, cited evidence, or a checklist of checks performed. Do not require full chain-of-thought unless the target model or product explicitly supports exposing it.
 
 ## XML Tags
 
@@ -330,7 +335,7 @@ When uncertain:
 3. **Iterate on examples** - When outputs miss the mark, add an example demonstrating the correct behavior
 4. **Separate instructions from content** - Use XML tags to prevent the model from confusing your instructions with input data
 5. **Put documents before queries** - For long context, place source material at the top of the prompt
-6. **Make reasoning visible** - Use `<thinking>` tags to debug why the model produces certain outputs
+6. **Ask for verifiable reasoning artifacts** - Prefer concise rationale, calculations, citations, or checklists over full hidden chain-of-thought
 7. **Constrain output format explicitly** - Specify structure, length, and style to reduce post-processing
 8. **Version your prompts** - Track changes to understand what modifications improved or degraded performance
 9. **Use system prompts for role, user prompts for task** - Keep role context stable; vary task instructions
@@ -339,5 +344,5 @@ When uncertain:
 ## References
 
 - [Claude Prompt Engineering Guide](https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering/overview)
-- [GPT-5 Prompting Guide](https://cookbook.openai.com/examples/gpt-5/gpt-5-2_prompting_guide)
+- [GPT-5.2 Prompting Guide](https://cookbook.openai.com/examples/gpt-5/gpt-5-2_prompting_guide)
 - [Anthropic Prompt Library](https://docs.anthropic.com/en/prompt-library)

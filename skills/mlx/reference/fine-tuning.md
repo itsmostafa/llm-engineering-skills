@@ -22,15 +22,20 @@ MLX supports three fine-tuning approaches:
 |--------|--------|---------|-------|
 | LoRA | Low | Good | Fast |
 | QLoRA | Very Low | Good | Fast |
+| DoRA | Low-Medium | Better than LoRA | Fast |
 | Full | High | Best | Slow |
 
-LoRA (Low-Rank Adaptation) trains small adapter matrices while freezing the base model. QLoRA applies LoRA to quantized models.
+LoRA (Low-Rank Adaptation) trains small adapter matrices while freezing the base model. QLoRA applies LoRA to quantized models. Install training extras before using the training commands:
+
+```bash
+pip install "mlx-lm[train]"
+```
 
 ## Data Preparation
 
 ### Supported Formats
 
-MLX-LM accepts JSONL files with either format:
+MLX-LM accepts local JSONL files with `chat`, `tools`, `completions`, or `text` rows.
 
 **Completion format:**
 ```jsonl
@@ -105,6 +110,18 @@ mlx_lm.lora --model mlx-community/Llama-3.2-3B-Instruct-4bit \
     --val-batches 25
 ```
 
+### Completion-Only Loss
+
+For chat or completion datasets, mask the prompt and train only on the answer tokens:
+
+```bash
+mlx_lm.lora --model mlx-community/Llama-3.2-3B-Instruct-4bit \
+    --train \
+    --data ./data \
+    --mask-prompt \
+    --iters 1000
+```
+
 ### Resume Training
 
 ```bash
@@ -153,6 +170,18 @@ mlx_lm.lora --model mlx-community/Llama-3.2-1B-Instruct \
     --learning-rate 1e-6
 ```
 
+## DoRA Fine-tuning
+
+Use DoRA when standard LoRA underfits but full fine-tuning is too expensive:
+
+```bash
+mlx_lm.lora --model mlx-community/Llama-3.2-3B-Instruct \
+    --train \
+    --data ./data \
+    --fine-tune-type dora \
+    --iters 1000
+```
+
 ### When to Use Full Fine-tuning
 
 - Small models (1-3B parameters)
@@ -184,6 +213,8 @@ mlx_lm.lora --model mlx-community/Llama-3.2-1B-Instruct \
 | `--save-every` | 100 | Save checkpoint every N steps |
 | `--max-seq-length` | 2048 | Maximum sequence length |
 | `--grad-checkpoint` | false | Enable gradient checkpointing |
+| `--mask-prompt` | false | Train only on completion tokens for chat/completion data |
+| `--fine-tune-type` | lora | `lora`, `dora`, or `full` |
 
 ### Rank Selection Guide
 

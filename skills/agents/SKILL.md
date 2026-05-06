@@ -14,6 +14,7 @@ Agents are systems where LLMs dynamically direct their own processes and tool us
 - [Agent Architectures](#agent-architectures)
 - [ReAct Pattern](#react-pattern)
 - [Tool Design](#tool-design)
+- [External Context Protocols](#external-context-protocols)
 - [Best Practices](#best-practices)
 - [References](#references)
 
@@ -319,6 +320,21 @@ search_tool = Tool(
 - Return truncated results when output could be large
 - Provide clear feedback on what the tool did
 
+## External Context Protocols
+
+Model Context Protocol (MCP) standardizes how agents discover tools, prompts, and resources from external systems. Prefer a protocol boundary when multiple agents, apps, or runtimes need the same integration.
+
+**Use MCP-style boundaries when**:
+- The integration exposes reusable tools or data resources
+- You need consistent auth and permission handling outside the agent loop
+- Tool metadata should be discoverable rather than hard-coded into prompts
+
+**Keep tool schemas tight**:
+- Use narrow parameters with explicit enums where possible
+- Return structured summaries before raw payloads
+- Include stable resource IDs so the agent can fetch details on demand
+- Keep destructive actions behind explicit approval or dry-run modes
+
 ## Best Practices
 
 1. **Start simple**: Begin with the simplest architecture that could work. Add complexity only when it demonstrably improves outcomes.
@@ -341,8 +357,11 @@ search_tool = Tool(
 
 10. **Measure outcomes**: Track task completion rates, accuracy, and efficiency to guide improvements.
 
+11. **Separate integration boundaries**: Use MCP or equivalent tool/resource servers when integrations need auth, shared state, or reuse across agents.
+
 ## References
 
 - [Building Effective Agents](https://www.anthropic.com/engineering/building-effective-agents) - Anthropic's guide to agent patterns and best practices
 - [LangGraph Workflows & Agents](https://docs.langchain.com/oss/javascript/langgraph/workflows-agents) - LangGraph documentation on agent architectures
+- [Model Context Protocol](https://modelcontextprotocol.io/docs) - Standard for exposing tools and resources to agents
 - [ReAct: Synergizing Reasoning and Acting](https://arxiv.org/abs/2210.03629) - Paper introducing the ReAct prompting pattern

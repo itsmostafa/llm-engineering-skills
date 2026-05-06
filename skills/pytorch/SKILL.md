@@ -16,6 +16,8 @@ PyTorch is a deep learning framework with dynamic computation graphs, strong GPU
 - [Performance Optimization](#performance-optimization)
 - [Distributed Training](#distributed-training)
 - [Saving and Loading](#saving-and-loading)
+- [Best Practices](#best-practices)
+- [References](#references)
 
 ## Core Concepts
 
@@ -151,9 +153,9 @@ for epoch in range(num_epochs):
 ### Mixed Precision Training
 
 ```python
-from torch.cuda.amp import autocast, GradScaler
+from torch.amp import autocast, GradScaler
 
-scaler = GradScaler()
+scaler = GradScaler("cuda")
 
 for batch in train_loader:
     inputs, targets = batch
@@ -161,7 +163,7 @@ for batch in train_loader:
 
     optimizer.zero_grad()
 
-    with autocast():
+    with autocast("cuda", dtype=torch.bfloat16):
         outputs = model(inputs)
         loss = criterion(outputs, targets)
 
@@ -182,7 +184,7 @@ for i, batch in enumerate(train_loader):
     inputs, targets = batch
     inputs, targets = inputs.to(device), targets.to(device)
 
-    with autocast():
+    with autocast("cuda", dtype=torch.bfloat16):
         outputs = model(inputs)
         loss = criterion(outputs, targets) / accumulation_steps
 
@@ -265,6 +267,8 @@ def train_step(model, inputs, targets):
 - `default`: Good balance of compile time and speedup
 - `reduce-overhead`: Minimizes framework overhead, good for small models
 - `max-autotune`: Maximum performance, longer compile time
+
+Start with `fullgraph=False` unless you are actively fixing graph breaks. Use `TORCH_LOGS="graph_breaks"` to inspect why compilation falls back to eager execution.
 
 ### Memory Optimization
 
@@ -353,7 +357,7 @@ torch.save({
 }, "checkpoint.pt")
 
 # Load
-checkpoint = torch.load("checkpoint.pt", map_location=device)
+checkpoint = torch.load("checkpoint.pt", map_location=device, weights_only=True)
 model.load_state_dict(checkpoint["model_state_dict"])
 optimizer.load_state_dict(checkpoint["optimizer_state_dict"])
 ```
@@ -387,12 +391,20 @@ torch.onnx.export(
 7. **Set deterministic mode for reproducibility**:
    ```python
    torch.manual_seed(42)
+   torch.use_deterministic_algorithms(True)
    torch.backends.cudnn.deterministic = True
    torch.backends.cudnn.benchmark = False
    ```
+
+8. **Use the unified AMP API**: Prefer `torch.amp.autocast("cuda")` and `torch.amp.GradScaler("cuda")` over legacy `torch.cuda.amp`.
+
+9. **Load untrusted checkpoints cautiously**: Use `weights_only=True` when loading state-dict checkpoints.
 
 ## References
 
 See `reference/` for detailed documentation:
 - `training-patterns.md` - Advanced training techniques
 - `debugging.md` - Debugging and profiling tools
+
+External documentation:
+- [PyTorch stable documentation](https://pytorch.org/docs/stable/)

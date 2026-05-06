@@ -17,6 +17,7 @@ Transformers is the model-definition framework for state-of-the-art machine lear
 - [Working with Modalities](#working-with-modalities)
 - [Memory and Performance](#memory-and-performance)
 - [Best Practices](#best-practices)
+- [References](#references)
 
 ## Core Concepts
 
@@ -25,7 +26,7 @@ Transformers is the model-definition framework for state-of-the-art machine lear
 Every model in Transformers has three core components:
 
 ```python
-from transformers import AutoConfig, AutoModel, AutoTokenizer
+from transformers import AutoConfig, AutoModel, AutoTokenizer, AutoProcessor
 
 # Configuration: hyperparameters and architecture settings
 config = AutoConfig.from_pretrained("bert-base-uncased")
@@ -33,8 +34,11 @@ config = AutoConfig.from_pretrained("bert-base-uncased")
 # Model: the neural network weights
 model = AutoModel.from_pretrained("bert-base-uncased")
 
-# Tokenizer/Processor: converts inputs to tensors
+# Tokenizer: converts text inputs to tensors
 tokenizer = AutoTokenizer.from_pretrained("bert-base-uncased")
+
+# Processor: unified preprocessing for vision, audio, and multimodal models
+processor = AutoProcessor.from_pretrained("openai/whisper-large-v3")
 ```
 
 ### The `from_pretrained` Pattern
@@ -43,16 +47,19 @@ All loading uses `from_pretrained()` which handles downloading, caching, and dev
 
 ```python
 from transformers import AutoModelForCausalLM, AutoTokenizer
+import torch
 
 model_name = "meta-llama/Llama-3.2-1B"
 
 tokenizer = AutoTokenizer.from_pretrained(model_name)
 model = AutoModelForCausalLM.from_pretrained(
     model_name,
-    torch_dtype=torch.bfloat16,
+    dtype=torch.bfloat16,
     device_map="auto",  # Automatic device placement
 )
 ```
+
+Transformers v5 examples use `dtype`. On Transformers v4, the equivalent argument is `torch_dtype`.
 
 ### Auto Classes
 
@@ -114,8 +121,8 @@ import torch
 
 pipe = pipeline(
     "text-generation",
-    model="meta-llama/Meta-Llama-3-8B-Instruct",
-    torch_dtype=torch.bfloat16,
+    model="meta-llama/Llama-3.2-3B-Instruct",
+    dtype=torch.bfloat16,
     device_map="auto",
 )
 
@@ -131,45 +138,22 @@ print(response[0]["generated_text"][-1]["content"])
 ### Vision Tasks
 
 ```python
-# Image classification
 classifier = pipeline("image-classification", model="google/vit-base-patch16-224")
-result = classifier("path/to/image.jpg")
-
-# Object detection
 detector = pipeline("object-detection", model="facebook/detr-resnet-50")
-objects = detector("path/to/image.jpg")
-
-# Image segmentation
-segmenter = pipeline("image-segmentation", model="facebook/mask2former-swin-base-coco-panoptic")
-masks = segmenter("path/to/image.jpg")
 ```
 
 ### Audio Tasks
 
 ```python
-# Speech recognition
 transcriber = pipeline("automatic-speech-recognition", model="openai/whisper-large-v3")
 text = transcriber("path/to/audio.mp3")
-
-# Audio classification
-classifier = pipeline("audio-classification", model="superb/wav2vec2-base-superb-ks")
-result = classifier("path/to/audio.wav")
 ```
 
 ### Multimodal Tasks
 
 ```python
-# Visual question answering
 vqa = pipeline("visual-question-answering", model="Salesforce/blip-vqa-base")
-answer = vqa(image="image.jpg", question="What color is the car?")
-
-# Image-to-text (captioning)
 captioner = pipeline("image-to-text", model="Salesforce/blip-image-captioning-base")
-caption = captioner("image.jpg")
-
-# Document question answering
-doc_qa = pipeline("document-question-answering", model="impira/layoutlm-document-qa")
-answer = doc_qa(image="document.png", question="What is the total?")
 ```
 
 ## Model Loading
@@ -184,7 +168,7 @@ import torch
 model = AutoModelForCausalLM.from_pretrained(
     "meta-llama/Llama-3.2-3B",
     device_map="auto",
-    torch_dtype=torch.bfloat16,
+    dtype=torch.bfloat16,
 )
 
 # Specific device
@@ -227,6 +211,8 @@ model = AutoModelForCausalLM.from_pretrained(
 )
 ```
 
+Prefer models with safetensors weights when available. Safetensors avoids pickle execution risks and typically loads faster than legacy `.bin` checkpoints.
+
 ## Inference Patterns
 
 ### Text Generation
@@ -239,7 +225,7 @@ model_name = "Qwen/Qwen2.5-3B-Instruct"
 tokenizer = AutoTokenizer.from_pretrained(model_name)
 model = AutoModelForCausalLM.from_pretrained(
     model_name,
-    torch_dtype=torch.bfloat16,
+    dtype=torch.bfloat16,
     device_map="auto",
 )
 
@@ -395,70 +381,13 @@ See `reference/fine-tuning.md` for advanced patterns including LoRA, custom data
 
 ## Working with Modalities
 
-### Vision Models
+Use `AutoProcessor` or modality-specific processors for non-text models. Processors handle images, audio, video, and multimodal chat formatting before tensors are sent to the model.
 
-```python
-from transformers import AutoImageProcessor, AutoModelForImageClassification
-from PIL import Image
-
-processor = AutoImageProcessor.from_pretrained("google/vit-base-patch16-224")
-model = AutoModelForImageClassification.from_pretrained("google/vit-base-patch16-224")
-
-image = Image.open("image.jpg")
-inputs = processor(images=image, return_tensors="pt")
-
-with torch.no_grad():
-    outputs = model(**inputs)
-    predicted_class = outputs.logits.argmax(-1).item()
-    print(model.config.id2label[predicted_class])
-```
-
-### Audio Models
-
-```python
-from transformers import AutoProcessor, AutoModelForSpeechSeq2Seq
-import torch
-
-processor = AutoProcessor.from_pretrained("openai/whisper-large-v3")
-model = AutoModelForSpeechSeq2Seq.from_pretrained(
-    "openai/whisper-large-v3",
-    torch_dtype=torch.float16,
-    device_map="auto",
-)
-
-# Load audio (use librosa, soundfile, or datasets)
-import librosa
-audio, sr = librosa.load("audio.mp3", sr=16000)
-
-inputs = processor(audio, sampling_rate=16000, return_tensors="pt")
-inputs = inputs.to(model.device)
-
-generated_ids = model.generate(**inputs)
-transcription = processor.batch_decode(generated_ids, skip_special_tokens=True)[0]
-```
-
-### Vision-Language Models
-
-```python
-from transformers import AutoProcessor, AutoModelForVision2Seq
-from PIL import Image
-import torch
-
-model_name = "llava-hf/llava-1.5-7b-hf"
-processor = AutoProcessor.from_pretrained(model_name)
-model = AutoModelForVision2Seq.from_pretrained(
-    model_name,
-    torch_dtype=torch.float16,
-    device_map="auto",
-)
-
-image = Image.open("image.jpg")
-prompt = "USER: <image>\nDescribe this image in detail.\nASSISTANT:"
-
-inputs = processor(text=prompt, images=image, return_tensors="pt").to(model.device)
-outputs = model.generate(**inputs, max_new_tokens=200)
-response = processor.decode(outputs[0], skip_special_tokens=True)
-```
+| Modality | Processor | Model Class |
+|----------|-----------|-------------|
+| Vision | `AutoImageProcessor` | `AutoModelForImageClassification`, `AutoModelForObjectDetection` |
+| Audio | `AutoProcessor` | `AutoModelForSpeechSeq2Seq`, `AutoModelForAudioClassification` |
+| Vision-language | `AutoProcessor` | `AutoModelForVision2Seq`, task-specific VLM classes |
 
 ## Memory and Performance
 
@@ -480,13 +409,16 @@ model = AutoModelForCausalLM.from_pretrained(
     "meta-llama/Llama-3.2-3B",
     quantization_config=bnb_config,
     device_map="auto",
+    dtype="auto",
 )
 
 # 8-bit quantization
+bnb_config = BitsAndBytesConfig(load_in_8bit=True)
 model = AutoModelForCausalLM.from_pretrained(
     "meta-llama/Llama-3.2-3B",
-    load_in_8bit=True,
+    quantization_config=bnb_config,
     device_map="auto",
+    dtype="auto",
 )
 ```
 
@@ -495,7 +427,7 @@ model = AutoModelForCausalLM.from_pretrained(
 ```python
 model = AutoModelForCausalLM.from_pretrained(
     "meta-llama/Llama-3.2-3B",
-    torch_dtype=torch.bfloat16,
+    dtype=torch.bfloat16,
     attn_implementation="flash_attention_2",  # Requires flash-attn package
     device_map="auto",
 )
@@ -504,7 +436,7 @@ model = AutoModelForCausalLM.from_pretrained(
 ### torch.compile
 
 ```python
-model = AutoModelForCausalLM.from_pretrained(model_name, torch_dtype=torch.bfloat16)
+model = AutoModelForCausalLM.from_pretrained(model_name, dtype=torch.bfloat16)
 model = torch.compile(model, mode="reduce-overhead")
 ```
 
@@ -520,21 +452,25 @@ with torch.no_grad():
 decoded = tokenizer.batch_decode(outputs, skip_special_tokens=True)
 ```
 
-See `reference/advanced-inference.md` for streaming, KV caching, and serving patterns.
-
 ## Best Practices
 
 1. **Use bfloat16 over float16**: Better numerical stability on modern GPUs
-2. **Set pad token for generation**: `tokenizer.pad_token = tokenizer.eos_token`
-3. **Use device_map="auto"**: Let Accelerate handle device placement
-4. **Enable Flash Attention**: Significant speedup for long sequences
-5. **Batch when possible**: Amortize fixed costs across multiple inputs
-6. **Use pipeline for quick prototyping**: Switch to manual control for production
-7. **Cache models locally**: Set `HF_HOME` environment variable for model cache location
-8. **Check model license**: Verify usage rights before deployment
+2. **Use `dtype="auto"` when unsure**: It follows model metadata or checkpoint weight dtype without wasting memory
+3. **Set pad token for generation**: `tokenizer.pad_token = tokenizer.eos_token`
+4. **Use device_map="auto"**: Let Accelerate handle device placement
+5. **Prefer safetensors checkpoints**: Avoid pickle-based loading when possible
+6. **Enable Flash Attention**: Significant speedup for long sequences
+7. **Batch when possible**: Amortize fixed costs across multiple inputs
+8. **Use pipeline for quick prototyping**: Switch to manual control for production
+9. **Cache models locally**: Set `HF_HOME` environment variable for model cache location
+10. **Check model license**: Verify usage rights before deployment
 
 ## References
 
 See `reference/` for detailed documentation:
 - `fine-tuning.md` - Advanced fine-tuning patterns with LoRA, PEFT, and custom training
-- `advanced-inference.md` - Generation strategies, streaming, and serving
+
+External documentation:
+- [Transformers documentation](https://huggingface.co/docs/transformers/)
+- [Loading models](https://huggingface.co/docs/transformers/models)
+- [Bitsandbytes quantization](https://huggingface.co/docs/transformers/quantization/bitsandbytes)

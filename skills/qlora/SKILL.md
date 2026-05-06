@@ -18,6 +18,7 @@ QLoRA enables fine-tuning of large language models on consumer GPUs by combining
 - [Inference and Merging](#inference-and-merging)
 - [Troubleshooting](#troubleshooting)
 - [Best Practices](#best-practices)
+- [References](#references)
 
 ## Core Innovations
 
@@ -114,12 +115,12 @@ optimal_config = BitsAndBytesConfig(
     bnb_4bit_compute_dtype=torch.bfloat16,
 )
 
-# Maximum memory savings (slightly slower)
-max_savings_config = BitsAndBytesConfig(
+# Fallback when bf16 is unsupported
+fp16_config = BitsAndBytesConfig(
     load_in_4bit=True,
     bnb_4bit_quant_type="nf4",
     bnb_4bit_use_double_quant=True,
-    bnb_4bit_compute_dtype=torch.float16,  # fp16 uses less memory than bf16
+    bnb_4bit_compute_dtype=torch.float16,  # use when bf16 is unsupported or slower
 )
 
 # 8-bit alternative (less compression, sometimes more stable)
@@ -180,6 +181,7 @@ model = AutoModelForCausalLM.from_pretrained(
     model_name,
     quantization_config=bnb_config,
     device_map="auto",
+    dtype="auto",
     attn_implementation="flash_attention_2",  # Optional: faster attention
 )
 
@@ -216,7 +218,8 @@ dataset = dataset.map(format_example)
 # 6. Training
 sft_config = SFTConfig(
     output_dir="./qlora-output",
-    max_seq_length=512,
+    max_length=512,
+    dataset_text_field="text",
     per_device_train_batch_size=4,
     gradient_accumulation_steps=4,
     num_train_epochs=1,
@@ -234,7 +237,6 @@ trainer = SFTTrainer(
     args=sft_config,
     train_dataset=dataset,
     processing_class=tokenizer,
-    dataset_text_field="text",
 )
 
 trainer.train()
@@ -266,6 +268,7 @@ base_model = AutoModelForCausalLM.from_pretrained(
     model_name,
     quantization_config=bnb_config,
     device_map="auto",
+    dtype="auto",
 )
 tokenizer = AutoTokenizer.from_pretrained(model_name)
 
@@ -291,7 +294,7 @@ import torch
 # Load base model in full precision (on CPU to avoid OOM)
 base_model = AutoModelForCausalLM.from_pretrained(
     "meta-llama/Llama-3.1-8B",
-    torch_dtype=torch.bfloat16,
+    dtype=torch.bfloat16,
     device_map="cpu",
 )
 
@@ -364,7 +367,7 @@ gradient_accumulation_steps = 16
 optim = "paged_adamw_8bit"
 
 # 4. Reduce sequence length
-max_seq_length = 256
+max_length = 256
 
 # 5. Target fewer modules
 target_modules = ["q_proj", "v_proj"]  # Minimal set
@@ -398,3 +401,11 @@ model.enable_input_require_grads()
 7. **Monitor GPU memory**: Use `nvidia-smi` or `torch.cuda.memory_summary()` to track actual usage
 
 8. **Consider 8-bit for unstable training**: If 4-bit training shows instability, try `load_in_8bit=True` as a middle ground
+
+9. **Use current TRL config fields**: Put `max_length` and `dataset_text_field` in `SFTConfig`, and pass the tokenizer or processor as `processing_class`.
+
+## References
+
+- [Transformers bitsandbytes quantization](https://huggingface.co/docs/transformers/quantization/bitsandbytes)
+- [TRL SFTTrainer](https://huggingface.co/docs/trl/sft_trainer)
+- [PEFT LoRA developer guide](https://huggingface.co/docs/peft/developer_guides/lora)
